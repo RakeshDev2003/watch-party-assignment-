@@ -6,8 +6,8 @@ import {
   FastForward,
   SkipBack,
   SkipForward,
-  ZoomIn,
-  ZoomOut,
+  Maximize,
+  Minimize,
   Film,
   Lock,
   Sparkles,
@@ -25,10 +25,8 @@ export default function RoomControls({
   currentTime,
   duration,
   canControl,
-  zoomLevel = 1,
-  onZoomIn,
-  onZoomOut,
-  onResetZoom,
+  isFullscreen = false,
+  onToggleFullscreen,
   onSkipBackward,
   onSkipForward,
   onSkipNextVideo,
@@ -368,72 +366,30 @@ export default function RoomControls({
           )}
         </div>
 
-        {/* Center: Zoom Controls */}
-        <div
+        {/* Fullscreen Button */}
+        <button
+          type="button"
+          onClick={onToggleFullscreen}
+          className="btn btn-secondary"
           style={{
             display: "flex",
             alignItems: "center",
             gap: "6px",
-            background: "rgba(0, 0, 0, 0.35)",
-            padding: "4px 10px",
+            padding: "8px 16px",
             borderRadius: "var(--radius-full)",
-            border: "1px solid var(--border-color)",
+            fontSize: "12px",
+            fontWeight: 600,
+            background: isFullscreen ? "rgba(139, 92, 246, 0.2)" : "rgba(255, 255, 255, 0.05)",
+            borderColor: isFullscreen ? "rgba(139, 92, 246, 0.4)" : "var(--border-color)",
+            color: isFullscreen ? "#c084fc" : "var(--text-main)",
+            cursor: "pointer",
+            transition: "all 0.15s ease",
           }}
+          title={isFullscreen ? "Exit Full Screen" : "Enter Full Screen"}
         >
-          <span style={{ fontSize: "11px", color: "var(--text-muted)", fontWeight: 600, marginRight: "2px" }}>
-            Zoom:
-          </span>
-          <button
-            type="button"
-            onClick={onZoomOut}
-            disabled={zoomLevel <= 1}
-            className="btn-icon"
-            style={{
-              width: "26px",
-              height: "26px",
-              color: zoomLevel <= 1 ? "rgba(255,255,255,0.2)" : "var(--text-main)",
-              cursor: zoomLevel <= 1 ? "not-allowed" : "pointer",
-            }}
-            title="Zoom out video"
-          >
-            <ZoomOut size={13} />
-          </button>
-
-          <button
-            type="button"
-            onClick={onResetZoom}
-            style={{
-              background: "none",
-              border: "none",
-              color: zoomLevel > 1 ? "#c084fc" : "var(--text-main)",
-              fontSize: "11px",
-              fontWeight: 700,
-              padding: "2px 6px",
-              cursor: "pointer",
-              fontFamily: "monospace",
-              borderRadius: "4px",
-            }}
-            title="Click to reset zoom to 100%"
-          >
-            {Math.round(zoomLevel * 100)}%
-          </button>
-
-          <button
-            type="button"
-            onClick={onZoomIn}
-            disabled={zoomLevel >= 2.5}
-            className="btn-icon"
-            style={{
-              width: "26px",
-              height: "26px",
-              color: zoomLevel >= 2.5 ? "rgba(255,255,255,0.2)" : "var(--text-main)",
-              cursor: zoomLevel >= 2.5 ? "not-allowed" : "pointer",
-            }}
-            title="Zoom in video"
-          >
-            <ZoomIn size={13} />
-          </button>
-        </div>
+          {isFullscreen ? <Minimize size={14} /> : <Maximize size={14} />}
+          <span>{isFullscreen ? "Exit Full Screen" : "Full Screen"}</span>
+        </button>
 
         {/* Right: Quick Emoji Reaction Bar */}
         <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>

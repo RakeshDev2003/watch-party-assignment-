@@ -49,12 +49,8 @@ export default function VideoPlayer({
   remoteSeekTarget, // { time: number, timestamp: number }
   canControl = false,
   reactions = [],
-  zoomLevel = 1,
-  onZoomIn,
-  onZoomOut,
-  onResetZoom,
-  onSkipBackward,
-  onSkipForward,
+  isFullscreen = false,
+  onToggleFullscreen,
   onLocalPlay,
   onLocalPause,
   onDurationChange,
@@ -71,27 +67,6 @@ export default function VideoPlayer({
   const [isReady, setIsReady] = useState(false);
   const [playerError, setPlayerError] = useState(null);
   const [autoplayBlocked, setAutoplayBlocked] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
-
-  // Sync fullscreen state changes
-  useEffect(() => {
-    const handleFullscreenChange = () => {
-      setIsFullscreen(Boolean(document.fullscreenElement));
-    };
-    document.addEventListener("fullscreenchange", handleFullscreenChange);
-    return () => {
-      document.removeEventListener("fullscreenchange", handleFullscreenChange);
-    };
-  }, []);
-
-  const handleToggleFullscreen = () => {
-    if (!playerOuterRef.current) return;
-    if (!document.fullscreenElement) {
-      playerOuterRef.current.requestFullscreen?.().catch((err) => console.warn(err));
-    } else {
-      document.exitFullscreen?.().catch((err) => console.warn(err));
-    }
-  };
 
   // Initialize or re-create the YouTube player instance
   const initPlayer = useCallback(() => {
@@ -334,6 +309,7 @@ export default function VideoPlayer({
 
   return (
     <div
+      id="main-video-player-container"
       ref={playerOuterRef}
       style={{
         position: "relative",
@@ -350,7 +326,7 @@ export default function VideoPlayer({
       {/* Floating Emoji Reactions Overlay */}
       <EmojiReactions reactions={reactions} />
 
-      {/* Embedded YouTube IFrame Container with Zoom Scale */}
+      {/* Embedded YouTube IFrame Container */}
       <div
         style={{
           position: "absolute",
@@ -359,9 +335,6 @@ export default function VideoPlayer({
           width: "100%",
           height: "100%",
           overflow: "hidden",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
         }}
       >
         <div
@@ -369,9 +342,6 @@ export default function VideoPlayer({
           style={{
             width: "100%",
             height: "100%",
-            transform: `scale(${zoomLevel})`,
-            transformOrigin: "center center",
-            transition: "transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
             pointerEvents: "none",
           }}
         />
@@ -390,7 +360,7 @@ export default function VideoPlayer({
             }
           } catch (e) {}
         }}
-        onDoubleClick={handleToggleFullscreen}
+        onDoubleClick={onToggleFullscreen}
         title={canControl ? (isPlaying ? "Click to Pause (Double-click for Fullscreen)" : "Click to Play (Double-click for Fullscreen)") : "Double-click for Fullscreen"}
         style={{
           position: "absolute",
@@ -399,8 +369,6 @@ export default function VideoPlayer({
           zIndex: 10,
         }}
       />
-
-
 
       {/* Autoplay / Click to Unmute & Sync Overlay */}
       {autoplayBlocked && !playerError && (

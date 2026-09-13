@@ -25,8 +25,8 @@ export default function WatchRoom({
   const [participants, setParticipants] = useState([]);
   const [hostId, setHostId] = useState(null);
 
-  // Zoom State
-  const [zoomLevel, setZoomLevel] = useState(1);
+  // Fullscreen State
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   // Chat & Reactions
   const [chatMessages, setChatMessages] = useState([]);
@@ -294,16 +294,28 @@ export default function WatchRoom({
     showToast(`⏭️ Switched to: ${nextVideo.title}`);
   };
 
-  const handleZoomInAction = () => {
-    setZoomLevel((prev) => Math.min(2.5, +(prev + 0.25).toFixed(2)));
-  };
+  // Fullscreen sync listener
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(Boolean(document.fullscreenElement));
+    };
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+    };
+  }, []);
 
-  const handleZoomOutAction = () => {
-    setZoomLevel((prev) => Math.max(1, +(prev - 0.25).toFixed(2)));
-  };
-
-  const handleResetZoomAction = () => {
-    setZoomLevel(1);
+  const handleToggleFullscreenAction = () => {
+    const playerElem = document.getElementById("main-video-player-container");
+    if (!document.fullscreenElement) {
+      if (playerElem?.requestFullscreen) {
+        playerElem.requestFullscreen().catch((err) => console.warn("Fullscreen request error:", err));
+      }
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen().catch((err) => console.warn("Exit fullscreen error:", err));
+      }
+    }
   };
 
   const handleChangeVideoAction = (newVideoId) => {
@@ -452,12 +464,8 @@ export default function WatchRoom({
               remoteSeekTarget={remoteSeekTarget}
               canControl={canControl}
               reactions={reactions}
-              zoomLevel={zoomLevel}
-              onZoomIn={handleZoomInAction}
-              onZoomOut={handleZoomOutAction}
-              onResetZoom={handleResetZoomAction}
-              onSkipBackward={handleSkipBackwardAction}
-              onSkipForward={handleSkipForwardAction}
+              isFullscreen={isFullscreen}
+              onToggleFullscreen={handleToggleFullscreenAction}
               onLocalPlay={handlePlayAction}
               onLocalPause={handlePauseAction}
               onDurationChange={setDuration}
@@ -471,10 +479,8 @@ export default function WatchRoom({
               currentTime={currentTime}
               duration={duration}
               canControl={canControl}
-              zoomLevel={zoomLevel}
-              onZoomIn={handleZoomInAction}
-              onZoomOut={handleZoomOutAction}
-              onResetZoom={handleResetZoomAction}
+              isFullscreen={isFullscreen}
+              onToggleFullscreen={handleToggleFullscreenAction}
               onSkipBackward={handleSkipBackwardAction}
               onSkipForward={handleSkipForwardAction}
               onSkipNextVideo={handleSkipNextVideoAction}
