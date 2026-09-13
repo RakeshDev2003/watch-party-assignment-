@@ -91,43 +91,31 @@ export default function Navbar({
   };
 
   return (
-    <header
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        padding: "14px 28px",
-        borderBottom: "1px solid var(--border-color)",
-        background: "rgba(9, 13, 22, 0.85)",
-        backdropFilter: "blur(12px)",
-        position: "sticky",
-        top: 0,
-        zIndex: 40,
-      }}
-    >
+    <header className="navbar-container">
       {/* Brand */}
-      <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+      <div className="navbar-brand-group">
         <div
           style={{
-            width: "38px",
-            height: "38px",
+            width: "36px",
+            height: "36px",
             borderRadius: "10px",
             background: "linear-gradient(135deg, #ef4444 0%, #8b5cf6 100%)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             boxShadow: "0 0 15px rgba(239, 68, 68, 0.35)",
+            flexShrink: 0,
           }}
         >
-          <Play size={18} color="#ffffff" fill="#ffffff" />
+          <Play size={17} color="#ffffff" fill="#ffffff" />
         </div>
         <div>
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
             <span
               style={{
                 fontFamily: "var(--font-heading)",
                 fontWeight: 700,
-                fontSize: "18px",
+                fontSize: "17px",
                 letterSpacing: "-0.01em",
                 background: "linear-gradient(90deg, #ffffff 0%, #cbd5e1 100%)",
                 WebkitBackgroundClip: "text",
@@ -137,9 +125,10 @@ export default function Navbar({
               WatchParty
             </span>
             <span
+              className="hide-on-mobile"
               style={{
-                fontSize: "10px",
-                padding: "2px 6px",
+                fontSize: "9px",
+                padding: "1px 5px",
                 borderRadius: "4px",
                 background: "rgba(139, 92, 246, 0.15)",
                 color: "#c084fc",
@@ -150,7 +139,17 @@ export default function Navbar({
             </span>
           </div>
           {roomTitle && (
-            <p style={{ fontSize: "12px", color: "var(--text-muted)", margin: 0 }}>
+            <p
+              style={{
+                fontSize: "11px",
+                color: "var(--text-muted)",
+                margin: 0,
+                maxWidth: "180px",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
               {roomTitle}
             </p>
           )}
@@ -159,15 +158,15 @@ export default function Navbar({
 
       {/* Room Details & Actions */}
       {roomId ? (
-        <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
+        <div className="navbar-actions-group">
           {/* Share Link Button */}
           <button
             onClick={handleShareLink}
             style={{
               display: "flex",
               alignItems: "center",
-              gap: "7px",
-              padding: "7px 14px",
+              gap: "6px",
+              padding: "6px 12px",
               borderRadius: "var(--radius-full)",
               fontSize: "12px",
               fontWeight: 600,
@@ -188,13 +187,13 @@ export default function Navbar({
           >
             {copiedLink ? (
               <>
-                <Check size={14} color="#34d399" />
-                <span>Link Copied!</span>
+                <Check size={13} color="#34d399" />
+                <span>Copied!</span>
               </>
             ) : (
               <>
-                <Share2 size={14} color="#c084fc" />
-                <span>Share Link</span>
+                <Share2 size={13} color="#c084fc" />
+                <span>Share</span>
               </>
             )}
           </button>
@@ -203,45 +202,33 @@ export default function Navbar({
           <button
             onClick={handleCopyRoomId}
             style={{
-              padding: "6px 12px",
+              padding: "6px 10px",
               borderRadius: "var(--radius-full)",
               fontSize: "12px",
               fontWeight: 600,
               display: "flex",
               alignItems: "center",
-              gap: "6px",
+              gap: "4px",
               background: copiedId ? "rgba(16, 185, 129, 0.15)" : "rgba(255, 255, 255, 0.05)",
               border: copiedId ? "1px solid rgba(16, 185, 129, 0.4)" : "1px solid var(--border-color)",
               color: copiedId ? "#34d399" : "var(--text-main)",
               cursor: "pointer",
               transition: "all 0.15s ease",
             }}
-            onMouseEnter={(e) => {
-              if (!copiedId) {
-                e.currentTarget.style.background = "rgba(255, 255, 255, 0.1)";
-                e.currentTarget.style.borderColor = "rgba(139, 92, 246, 0.4)";
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (!copiedId) {
-                e.currentTarget.style.background = "rgba(255, 255, 255, 0.05)";
-                e.currentTarget.style.borderColor = "var(--border-color)";
-              }
-            }}
             title="Click to copy Room ID"
           >
             {copiedId ? (
               <>
-                <Check size={13} color="#34d399" />
-                <span style={{ color: "#34d399", fontWeight: 700 }}>ID Copied!</span>
+                <Check size={12} color="#34d399" />
+                <span style={{ color: "#34d399", fontWeight: 700 }}>Copied!</span>
               </>
             ) : (
               <>
-                <span style={{ color: "var(--text-dim)" }}>Room:</span>
-                <span style={{ color: "#c084fc", letterSpacing: "0.05em", fontFamily: "monospace", fontWeight: 700 }}>
+                <span className="hide-on-mobile" style={{ color: "var(--text-dim)" }}>ID:</span>
+                <span style={{ color: "#c084fc", letterSpacing: "0.03em", fontFamily: "monospace", fontWeight: 700 }}>
                   {roomId}
                 </span>
-                <Copy size={13} color="#94a3b8" style={{ marginLeft: "2px" }} />
+                <Copy size={12} color="#94a3b8" />
               </>
             )}
           </button>
@@ -254,8 +241,9 @@ export default function Navbar({
 
           {/* User Name */}
           <div
+            className="hide-on-mobile"
             style={{
-              fontSize: "13px",
+              fontSize: "12px",
               fontWeight: 600,
               color: "var(--text-main)",
               display: "flex",
@@ -265,15 +253,15 @@ export default function Navbar({
           >
             <div
               style={{
-                width: "26px",
-                height: "26px",
+                width: "24px",
+                height: "24px",
                 borderRadius: "50%",
                 background: "rgba(139, 92, 246, 0.25)",
                 border: "1px solid rgba(139, 92, 246, 0.4)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontSize: "11px",
+                fontSize: "10px",
                 color: "#d8b4fe",
                 fontWeight: 700,
               }}
@@ -288,17 +276,17 @@ export default function Navbar({
             style={{
               display: "flex",
               alignItems: "center",
-              gap: "6px",
-              padding: "4px 10px",
+              gap: "5px",
+              padding: "4px 8px",
               background: "rgba(16, 185, 129, 0.1)",
               borderRadius: "var(--radius-full)",
               border: "1px solid rgba(16, 185, 129, 0.2)",
-              fontSize: "11px",
-              fontWeight: 600,
+              fontSize: "10px",
+              fontWeight: 700,
               color: "#34d399",
             }}
           >
-            <div className="pulse-dot" />
+            <div className="pulse-dot" style={{ width: "6px", height: "6px" }} />
             <span>LIVE</span>
           </div>
 
@@ -307,16 +295,16 @@ export default function Navbar({
             <button
               onClick={onLeave}
               className="btn btn-danger"
-              style={{ padding: "6px 12px", fontSize: "12px" }}
+              style={{ padding: "5px 10px", fontSize: "11px", borderRadius: "var(--radius-full)" }}
               title="Leave Room"
             >
-              <LogOut size={14} />
+              <LogOut size={13} />
               <span>Leave</span>
             </button>
           )}
         </div>
       ) : (
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           <div
             style={{
               display: "flex",

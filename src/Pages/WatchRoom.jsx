@@ -493,16 +493,7 @@ export default function WatchRoom({
           </div>
 
           {/* Right Column: Tabbed Sidebar (Chat & Participants) */}
-          <div
-            className="glass-panel"
-            style={{
-              height: "calc(100vh - 120px)",
-              minHeight: "560px",
-              display: "flex",
-              flexDirection: "column",
-              overflow: "hidden",
-            }}
-          >
+          <div className="glass-panel watch-sidebar">
             {/* Quick Participant Preview Bar */}
             <div
               style={{

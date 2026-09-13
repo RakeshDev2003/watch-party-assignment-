@@ -74,17 +74,17 @@ export default function RoomControls({
   const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
-    <div className="glass-panel" style={{ padding: "16px 20px", marginTop: "16px" }}>
+    <div className="glass-panel room-controls-card">
       {/* 1. Direct YouTube Link Input Bar (Always accessible for Host/Mod) */}
       {canControl && (
         <div style={{ marginBottom: "16px" }}>
           <form onSubmit={handleDirectVideoSubmit}>
-            <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-              <div style={{ position: "relative", flex: 1 }}>
+            <div className="controls-input-row">
+              <div className="controls-url-wrapper">
                 <input
                   type="text"
                   className="input-control"
-                  placeholder="Paste any YouTube URL or Video ID here (e.g. https://www.youtube.com/watch?v=...)"
+                  placeholder="Paste YouTube URL or Video ID (e.g. https://www.youtube.com/watch?v=...)"
                   value={videoUrlInput}
                   onChange={(e) => {
                     setVideoUrlInput(e.target.value);
@@ -110,33 +110,35 @@ export default function RoomControls({
                 />
               </div>
 
-              <button
-                type="submit"
-                className="btn btn-primary"
-                style={{
-                  padding: "10px 18px",
-                  fontSize: "13px",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                <span>Load Video</span>
-                <ArrowRight size={14} />
-              </button>
+              <div className="controls-action-btns">
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  style={{
+                    padding: "10px 18px",
+                    fontSize: "13px",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  <span>Load Video</span>
+                  <ArrowRight size={14} />
+                </button>
 
-              <button
-                type="button"
-                onClick={() => setShowPresets(!showPresets)}
-                className="btn btn-secondary"
-                style={{
-                  padding: "10px 14px",
-                  fontSize: "13px",
-                  whiteSpace: "nowrap",
-                }}
-                title="Browse quick video presets"
-              >
-                <Sparkles size={14} color="#fbbf24" />
-                <span>Presets</span>
-              </button>
+                <button
+                  type="button"
+                  onClick={() => setShowPresets(!showPresets)}
+                  className="btn btn-secondary"
+                  style={{
+                    padding: "10px 14px",
+                    fontSize: "13px",
+                    whiteSpace: "nowrap",
+                  }}
+                  title="Browse quick video presets"
+                >
+                  <Sparkles size={14} color="#fbbf24" />
+                  <span>Presets</span>
+                </button>
+              </div>
             </div>
           </form>
 
@@ -230,17 +232,9 @@ export default function RoomControls({
       </div>
 
       {/* 3. Playback & Emoji Bar */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          flexWrap: "wrap",
-          gap: "12px",
-        }}
-      >
+      <div className="playback-bar">
         {/* Left: Play/Pause/Skip Controls */}
-        <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+        <div className="playback-controls-group">
           {canControl ? (
             <>
               {/* Skip Back 10s */}
@@ -366,66 +360,69 @@ export default function RoomControls({
           )}
         </div>
 
-        {/* Fullscreen Button */}
-        <button
-          type="button"
-          onClick={onToggleFullscreen}
-          className="btn btn-secondary"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "6px",
-            padding: "8px 16px",
-            borderRadius: "var(--radius-full)",
-            fontSize: "12px",
-            fontWeight: 600,
-            background: isFullscreen ? "rgba(139, 92, 246, 0.2)" : "rgba(255, 255, 255, 0.05)",
-            borderColor: isFullscreen ? "rgba(139, 92, 246, 0.4)" : "var(--border-color)",
-            color: isFullscreen ? "#c084fc" : "var(--text-main)",
-            cursor: "pointer",
-            transition: "all 0.15s ease",
-          }}
-          title={isFullscreen ? "Exit Full Screen" : "Enter Full Screen"}
-        >
-          {isFullscreen ? <Minimize size={14} /> : <Maximize size={14} />}
-          <span>{isFullscreen ? "Exit Full Screen" : "Full Screen"}</span>
-        </button>
+        {/* Right Action Group: Fullscreen & Reactions */}
+        <div className="playback-actions-group">
+          {/* Fullscreen Button */}
+          <button
+            type="button"
+            onClick={onToggleFullscreen}
+            className="btn btn-secondary"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+              padding: "8px 16px",
+              borderRadius: "var(--radius-full)",
+              fontSize: "12px",
+              fontWeight: 600,
+              background: isFullscreen ? "rgba(139, 92, 246, 0.2)" : "rgba(255, 255, 255, 0.05)",
+              borderColor: isFullscreen ? "rgba(139, 92, 246, 0.4)" : "var(--border-color)",
+              color: isFullscreen ? "#c084fc" : "var(--text-main)",
+              cursor: "pointer",
+              transition: "all 0.15s ease",
+            }}
+            title={isFullscreen ? "Exit Full Screen" : "Enter Full Screen"}
+          >
+            {isFullscreen ? <Minimize size={14} /> : <Maximize size={14} />}
+            <span>{isFullscreen ? "Exit Full Screen" : "Full Screen"}</span>
+          </button>
 
-        {/* Right: Quick Emoji Reaction Bar */}
-        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-          <span style={{ fontSize: "11px", color: "var(--text-dim)", marginRight: "4px" }}>
-            React:
-          </span>
-          {REACTION_EMOJIS.map((emoji) => (
-            <button
-              key={emoji}
-              onClick={() => onSendReaction && onSendReaction(emoji)}
-              style={{
-                background: "rgba(255, 255, 255, 0.05)",
-                border: "1px solid var(--border-color)",
-                borderRadius: "var(--radius-full)",
-                width: "32px",
-                height: "32px",
-                fontSize: "16px",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                transition: "transform 0.15s ease, background 0.15s ease",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = "scale(1.2)";
-                e.currentTarget.style.background = "rgba(139, 92, 246, 0.2)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = "scale(1)";
-                e.currentTarget.style.background = "rgba(255, 255, 255, 0.05)";
-              }}
-              title={`Send ${emoji} reaction`}
-            >
-              {emoji}
-            </button>
-          ))}
+          {/* Quick Emoji Reaction Bar */}
+          <div className="reactions-group">
+            <span style={{ fontSize: "11px", color: "var(--text-dim)", marginRight: "2px" }}>
+              React:
+            </span>
+            {REACTION_EMOJIS.map((emoji) => (
+              <button
+                key={emoji}
+                onClick={() => onSendReaction && onSendReaction(emoji)}
+                style={{
+                  background: "rgba(255, 255, 255, 0.05)",
+                  border: "1px solid var(--border-color)",
+                  borderRadius: "var(--radius-full)",
+                  width: "30px",
+                  height: "30px",
+                  fontSize: "15px",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  transition: "transform 0.15s ease, background 0.15s ease",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = "scale(1.2)";
+                  e.currentTarget.style.background = "rgba(139, 92, 246, 0.2)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "scale(1)";
+                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.05)";
+                }}
+                title={`Send ${emoji} reaction`}
+              >
+                {emoji}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     </div>
