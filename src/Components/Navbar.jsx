@@ -71,11 +71,11 @@ export default function Navbar({
   const getRoleIcon = () => {
     switch (currentUserRole) {
       case "Host":
-        return <Crown size={13} className="text-amber-400" />;
+        return <Crown size={12} className="text-amber-400" />;
       case "Moderator":
-        return <Shield size={13} className="text-purple-400" />;
+        return <Shield size={12} className="text-purple-400" />;
       default:
-        return <User size={13} className="text-slate-400" />;
+        return <User size={12} className="text-slate-400" />;
     }
   };
 
@@ -92,217 +92,99 @@ export default function Navbar({
 
   return (
     <header className="navbar-container">
-      {/* Brand */}
+      {/* 1. Brand Group */}
       <div className="navbar-brand-group">
-        <div
-          style={{
-            width: "36px",
-            height: "36px",
-            borderRadius: "10px",
-            background: "linear-gradient(135deg, #ef4444 0%, #8b5cf6 100%)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            boxShadow: "0 0 15px rgba(239, 68, 68, 0.35)",
-            flexShrink: 0,
-          }}
-        >
-          <Play size={17} color="#ffffff" fill="#ffffff" />
+        <div className="navbar-logo-icon">
+          <Play size={16} color="#ffffff" fill="#ffffff" />
         </div>
-        <div>
+        <div className="navbar-brand-text-wrapper">
           <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-            <span
-              style={{
-                fontFamily: "var(--font-heading)",
-                fontWeight: 700,
-                fontSize: "17px",
-                letterSpacing: "-0.01em",
-                background: "linear-gradient(90deg, #ffffff 0%, #cbd5e1 100%)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-              }}
-            >
-              WatchParty
-            </span>
-            <span
-              className="hide-on-mobile"
-              style={{
-                fontSize: "9px",
-                padding: "1px 5px",
-                borderRadius: "4px",
-                background: "rgba(139, 92, 246, 0.15)",
-                color: "#c084fc",
-                fontWeight: 700,
-              }}
-            >
-              SYNC
-            </span>
+            <span className="navbar-brand-title">WatchParty</span>
+            <span className="hide-on-mobile badge-sync-tag">SYNC</span>
           </div>
           {roomTitle && (
-            <p
-              style={{
-                fontSize: "11px",
-                color: "var(--text-muted)",
-                margin: 0,
-                maxWidth: "180px",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-              }}
-            >
-              {roomTitle}
-            </p>
+            <p className="navbar-room-title">{roomTitle}</p>
           )}
         </div>
       </div>
 
-      {/* Room Details & Actions */}
       {roomId ? (
-        <div className="navbar-actions-group">
-          {/* Share Link Button */}
-          <button
-            onClick={handleShareLink}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "6px",
-              padding: "6px 12px",
-              borderRadius: "var(--radius-full)",
-              fontSize: "12px",
-              fontWeight: 600,
-              cursor: "pointer",
-              background: copiedLink
-                ? "rgba(16, 185, 129, 0.18)"
-                : "linear-gradient(135deg, rgba(139, 92, 246, 0.25) 0%, rgba(236, 72, 153, 0.25) 100%)",
-              border: copiedLink
-                ? "1px solid rgba(16, 185, 129, 0.5)"
-                : "1px solid rgba(139, 92, 246, 0.4)",
-              color: copiedLink ? "#34d399" : "#e2e8f0",
-              boxShadow: copiedLink
-                ? "0 0 12px rgba(16, 185, 129, 0.3)"
-                : "0 0 12px rgba(139, 92, 246, 0.15)",
-              transition: "all 0.2s ease",
-            }}
-            title="Click to copy invite link or share with friends"
-          >
-            {copiedLink ? (
-              <>
-                <Check size={13} color="#34d399" />
-                <span>Copied!</span>
-              </>
-            ) : (
-              <>
-                <Share2 size={13} color="#c084fc" />
-                <span>Share</span>
-              </>
-            )}
-          </button>
-
-          {/* Room ID Copy Button */}
-          <button
-            onClick={handleCopyRoomId}
-            style={{
-              padding: "6px 10px",
-              borderRadius: "var(--radius-full)",
-              fontSize: "12px",
-              fontWeight: 600,
-              display: "flex",
-              alignItems: "center",
-              gap: "4px",
-              background: copiedId ? "rgba(16, 185, 129, 0.15)" : "rgba(255, 255, 255, 0.05)",
-              border: copiedId ? "1px solid rgba(16, 185, 129, 0.4)" : "1px solid var(--border-color)",
-              color: copiedId ? "#34d399" : "var(--text-main)",
-              cursor: "pointer",
-              transition: "all 0.15s ease",
-            }}
-            title="Click to copy Room ID"
-          >
-            {copiedId ? (
-              <>
-                <Check size={12} color="#34d399" />
-                <span style={{ color: "#34d399", fontWeight: 700 }}>Copied!</span>
-              </>
-            ) : (
-              <>
-                <span className="hide-on-mobile" style={{ color: "var(--text-dim)" }}>ID:</span>
-                <span style={{ color: "#c084fc", letterSpacing: "0.03em", fontFamily: "monospace", fontWeight: 700 }}>
-                  {roomId}
-                </span>
-                <Copy size={12} color="#94a3b8" />
-              </>
-            )}
-          </button>
-
-          {/* User Role Badge */}
-          <div className={`badge ${getRoleBadgeClass()}`}>
-            {getRoleIcon()}
-            <span>{currentUserRole}</span>
-          </div>
-
-          {/* User Name */}
-          <div
-            className="hide-on-mobile"
-            style={{
-              fontSize: "12px",
-              fontWeight: 600,
-              color: "var(--text-main)",
-              display: "flex",
-              alignItems: "center",
-              gap: "6px",
-            }}
-          >
-            <div
-              style={{
-                width: "24px",
-                height: "24px",
-                borderRadius: "50%",
-                background: "rgba(139, 92, 246, 0.25)",
-                border: "1px solid rgba(139, 92, 246, 0.4)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "10px",
-                color: "#d8b4fe",
-                fontWeight: 700,
-              }}
-            >
-              {(username || "U").charAt(0).toUpperCase()}
-            </div>
-            <span>{username}</span>
-          </div>
-
-          {/* Live Indicator */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "5px",
-              padding: "4px 8px",
-              background: "rgba(16, 185, 129, 0.1)",
-              borderRadius: "var(--radius-full)",
-              border: "1px solid rgba(16, 185, 129, 0.2)",
-              fontSize: "10px",
-              fontWeight: 700,
-              color: "#34d399",
-            }}
-          >
-            <div className="pulse-dot" style={{ width: "6px", height: "6px" }} />
-            <span>LIVE</span>
-          </div>
-
-          {/* Leave Button */}
-          {onLeave && (
+        <>
+          {/* 2. Room Share & ID Group */}
+          <div className="navbar-share-group">
+            {/* Room ID Copy Button */}
             <button
-              onClick={onLeave}
-              className="btn btn-danger"
-              style={{ padding: "5px 10px", fontSize: "11px", borderRadius: "var(--radius-full)" }}
-              title="Leave Room"
+              onClick={handleCopyRoomId}
+              className={`nav-action-btn nav-roomid-btn ${copiedId ? "copied" : ""}`}
+              title="Click to copy Room ID"
             >
-              <LogOut size={13} />
-              <span>Leave</span>
+              {copiedId ? (
+                <>
+                  <Check size={12} color="#34d399" />
+                  <span className="nav-btn-label" style={{ color: "#34d399", fontWeight: 700 }}>ID Copied!</span>
+                </>
+              ) : (
+                <>
+                  <span className="nav-id-prefix">ID:</span>
+                  <span className="nav-roomid-code">{roomId}</span>
+                  <Copy size={12} color="#94a3b8" />
+                </>
+              )}
             </button>
-          )}
-        </div>
+
+            {/* Share Link Button */}
+            <button
+              onClick={handleShareLink}
+              className={`nav-action-btn nav-share-btn ${copiedLink ? "copied" : ""}`}
+              title="Click to copy invite link or share with friends"
+            >
+              {copiedLink ? (
+                <>
+                  <Check size={13} color="#34d399" />
+                  <span className="nav-btn-label">Link Copied!</span>
+                </>
+              ) : (
+                <>
+                  <Share2 size={13} color="#c084fc" />
+                  <span className="nav-btn-label">Share Party</span>
+                </>
+              )}
+            </button>
+          </div>
+
+          {/* 3. User Identity, Status & Exit Group */}
+          <div className="navbar-user-group">
+            {/* Live Indicator */}
+            <div className="nav-live-badge">
+              <div className="pulse-dot" style={{ width: "6px", height: "6px" }} />
+              <span className="hide-on-mobile">LIVE</span>
+            </div>
+
+            {/* Merged User Profile & Role Chip */}
+            <div className="navbar-user-chip" title={`${username} (${currentUserRole})`}>
+              <div className="user-avatar-mini">
+                {(username || "U").charAt(0).toUpperCase()}
+              </div>
+              <span className="navbar-username-text hide-on-xs">{username}</span>
+              <span className={`badge-role-tag ${getRoleBadgeClass()}`}>
+                {getRoleIcon()}
+                <span>{currentUserRole}</span>
+              </span>
+            </div>
+
+            {/* Leave Button (Always on the far right) */}
+            {onLeave && (
+              <button
+                onClick={onLeave}
+                className="btn btn-danger nav-action-btn nav-leave-btn"
+                title="Leave Room"
+              >
+                <LogOut size={13} />
+                <span className="hide-on-xs">Leave</span>
+              </button>
+            )}
+          </div>
+        </>
       ) : (
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           <div
@@ -322,3 +204,4 @@ export default function Navbar({
     </header>
   );
 }
+

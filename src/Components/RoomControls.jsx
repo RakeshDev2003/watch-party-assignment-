@@ -231,192 +231,110 @@ export default function RoomControls({
         </span>
       </div>
 
-      {/* 3. Playback & Emoji Bar */}
-      <div className="playback-bar">
-        {/* Left: Play/Pause/Skip Controls */}
-        <div className="playback-controls-group">
-          {canControl ? (
-            <>
-              {/* Skip Back 10s */}
-              <button
-                type="button"
-                onClick={() => onSkipBackward && onSkipBackward(10)}
-                className="btn btn-secondary"
-                style={{
-                  padding: "8px 12px",
-                  borderRadius: "var(--radius-full)",
-                  fontSize: "12px",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "4px",
-                }}
-                title="Skip back 10 seconds (-10s)"
-              >
-                <RotateCcw size={14} />
-                <span>-10s</span>
-              </button>
-
-              {/* Play / Pause Toggle */}
-              {isPlaying ? (
-                <button
-                  onClick={onPause}
-                  className="btn btn-secondary"
-                  style={{
-                    padding: "8px 18px",
-                    borderRadius: "var(--radius-full)",
-                    background: "rgba(239, 68, 68, 0.15)",
-                    borderColor: "rgba(239, 68, 68, 0.3)",
-                    color: "#fca5a5",
-                  }}
-                  title="Pause video for everyone"
-                >
-                  <Pause size={16} fill="#fca5a5" />
-                  <span>Pause</span>
-                </button>
-              ) : (
-                <button
-                  onClick={onPlay}
-                  className="btn btn-primary"
-                  style={{
-                    padding: "8px 20px",
-                    borderRadius: "var(--radius-full)",
-                  }}
-                  title="Play video for everyone"
-                >
-                  <Play size={16} fill="#ffffff" />
-                  <span>Play</span>
-                </button>
-              )}
-
-              {/* Skip Forward 10s */}
-              <button
-                type="button"
-                onClick={() => onSkipForward && onSkipForward(10)}
-                className="btn btn-secondary"
-                style={{
-                  padding: "8px 12px",
-                  borderRadius: "var(--radius-full)",
-                  fontSize: "12px",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "4px",
-                }}
-                title="Skip forward 10 seconds (+10s)"
-              >
-                <FastForward size={14} />
-                <span>+10s</span>
-              </button>
-
-              {/* Skip to Next Video */}
-              {onSkipNextVideo && (
+      {/* 3. Playback Controls & Emoji Bar */}
+      <div className="playback-bar-container">
+        {/* Main Controls Row */}
+        <div className="playback-main-row">
+          {/* Primary Controls: Skip Back, Play/Pause, Skip Forward, Restart */}
+          <div className="playback-primary-group">
+            {canControl ? (
+              <>
+                {/* Skip Back 10s */}
                 <button
                   type="button"
-                  onClick={onSkipNextVideo}
-                  className="btn btn-secondary"
-                  style={{
-                    padding: "8px 14px",
-                    borderRadius: "var(--radius-full)",
-                    fontSize: "12px",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "6px",
-                    background: "rgba(139, 92, 246, 0.12)",
-                    borderColor: "rgba(139, 92, 246, 0.3)",
-                    color: "#c084fc",
-                  }}
-                  title="Skip to next playlist track"
+                  onClick={() => onSkipBackward && onSkipBackward(10)}
+                  className="btn btn-secondary control-btn control-skip-btn"
+                  title="Skip back 10 seconds (-10s)"
                 >
-                  <SkipForward size={14} />
-                  <span>Next Video</span>
+                  <RotateCcw size={14} />
+                  <span>-10s</span>
                 </button>
-              )}
 
-              {/* Restart */}
+                {/* Play / Pause Toggle */}
+                {isPlaying ? (
+                  <button
+                    onClick={onPause}
+                    className="btn btn-secondary control-btn control-play-btn is-playing"
+                    title="Pause video for everyone"
+                  >
+                    <Pause size={16} fill="#fca5a5" />
+                    <span>Pause</span>
+                  </button>
+                ) : (
+                  <button
+                    onClick={onPlay}
+                    className="btn btn-primary control-btn control-play-btn"
+                    title="Play video for everyone"
+                  >
+                    <Play size={16} fill="#ffffff" />
+                    <span>Play</span>
+                  </button>
+                )}
+
+                {/* Skip Forward 10s */}
+                <button
+                  type="button"
+                  onClick={() => onSkipForward && onSkipForward(10)}
+                  className="btn btn-secondary control-btn control-skip-btn"
+                  title="Skip forward 10 seconds (+10s)"
+                >
+                  <FastForward size={14} />
+                  <span>+10s</span>
+                </button>
+
+                {/* Restart */}
+                <button
+                  onClick={() => onSeek(0)}
+                  className="btn-icon control-restart-btn"
+                  title="Restart from beginning (0:00)"
+                >
+                  <RotateCcw size={14} />
+                </button>
+              </>
+            ) : (
+              <div className="playback-locked-badge">
+                <Lock size={13} color="#94a3b8" />
+                <span>Playback controlled by Host / Moderator</span>
+              </div>
+            )}
+          </div>
+
+          {/* Secondary Actions: Next Video & Full Screen */}
+          <div className="playback-secondary-group">
+            {canControl && onSkipNextVideo && (
               <button
-                onClick={() => onSeek(0)}
-                className="btn-icon"
-                title="Restart from beginning (0:00)"
+                type="button"
+                onClick={onSkipNextVideo}
+                className="btn btn-secondary control-btn control-next-btn"
+                title="Skip to next playlist track"
               >
-                <RotateCcw size={14} />
+                <SkipForward size={14} />
+                <span>Next Video</span>
               </button>
-            </>
-          ) : (
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "8px",
-                padding: "6px 14px",
-                background: "rgba(255, 255, 255, 0.04)",
-                borderRadius: "var(--radius-full)",
-                border: "1px solid var(--border-color)",
-                fontSize: "12px",
-                color: "var(--text-muted)",
-              }}
+            )}
+
+            {/* Fullscreen Button */}
+            <button
+              type="button"
+              onClick={onToggleFullscreen}
+              className={`btn btn-secondary control-btn control-fullscreen-btn ${isFullscreen ? "is-fullscreen" : ""}`}
+              title={isFullscreen ? "Exit Full Screen" : "Enter Full Screen"}
             >
-              <Lock size={13} color="#94a3b8" />
-              <span>Playback controlled by Host / Moderator</span>
-            </div>
-          )}
+              {isFullscreen ? <Minimize size={14} /> : <Maximize size={14} />}
+              <span>{isFullscreen ? "Exit Screen" : "Full Screen"}</span>
+            </button>
+          </div>
         </div>
 
-        {/* Right Action Group: Fullscreen & Reactions */}
-        <div className="playback-actions-group">
-          {/* Fullscreen Button */}
-          <button
-            type="button"
-            onClick={onToggleFullscreen}
-            className="btn btn-secondary"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "6px",
-              padding: "8px 16px",
-              borderRadius: "var(--radius-full)",
-              fontSize: "12px",
-              fontWeight: 600,
-              background: isFullscreen ? "rgba(139, 92, 246, 0.2)" : "rgba(255, 255, 255, 0.05)",
-              borderColor: isFullscreen ? "rgba(139, 92, 246, 0.4)" : "var(--border-color)",
-              color: isFullscreen ? "#c084fc" : "var(--text-main)",
-              cursor: "pointer",
-              transition: "all 0.15s ease",
-            }}
-            title={isFullscreen ? "Exit Full Screen" : "Enter Full Screen"}
-          >
-            {isFullscreen ? <Minimize size={14} /> : <Maximize size={14} />}
-            <span>{isFullscreen ? "Exit Full Screen" : "Full Screen"}</span>
-          </button>
-
-          {/* Quick Emoji Reaction Bar */}
-          <div className="reactions-group">
-            <span style={{ fontSize: "11px", color: "var(--text-dim)", marginRight: "2px" }}>
-              React:
-            </span>
+        {/* Dedicated Reactions Row */}
+        <div className="playback-reactions-row">
+          <span className="reactions-label">React:</span>
+          <div className="reactions-emojis-list">
             {REACTION_EMOJIS.map((emoji) => (
               <button
                 key={emoji}
                 onClick={() => onSendReaction && onSendReaction(emoji)}
-                style={{
-                  background: "rgba(255, 255, 255, 0.05)",
-                  border: "1px solid var(--border-color)",
-                  borderRadius: "var(--radius-full)",
-                  width: "30px",
-                  height: "30px",
-                  fontSize: "15px",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  transition: "transform 0.15s ease, background 0.15s ease",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = "scale(1.2)";
-                  e.currentTarget.style.background = "rgba(139, 92, 246, 0.2)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = "scale(1)";
-                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.05)";
-                }}
+                className="emoji-reaction-btn"
                 title={`Send ${emoji} reaction`}
               >
                 {emoji}
