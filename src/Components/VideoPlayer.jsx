@@ -1,5 +1,20 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
-import { Lock, RefreshCw, Volume2, VolumeX, Play, AlertCircle, Sparkles } from "lucide-react";
+import {
+  Lock,
+  RefreshCw,
+  Volume2,
+  VolumeX,
+  Play,
+  Pause,
+  AlertCircle,
+  Sparkles,
+  ZoomIn,
+  ZoomOut,
+  Maximize,
+  Minimize,
+  RotateCcw,
+  FastForward,
+} from "lucide-react";
 import EmojiReactions from "./EmojiReactions";
 import { DEFAULT_VIDEO_ID } from "../utils/youtube";
 
@@ -49,6 +64,12 @@ export default function VideoPlayer({
   remoteSeekTarget, // { time: number, timestamp: number }
   canControl = false,
   reactions = [],
+  zoomLevel = 1,
+  onZoomIn,
+  onZoomOut,
+  onResetZoom,
+  onSkipBackward,
+  onSkipForward,
   onLocalPlay,
   onLocalPause,
   onDurationChange,
@@ -56,6 +77,7 @@ export default function VideoPlayer({
   onSelectNewVideo,
 }) {
   const activeVideoId = (videoId && videoId.trim().length > 0) ? videoId.trim() : DEFAULT_VIDEO_ID;
+  const playerOuterRef = useRef(null);
   const containerWrapperRef = useRef(null);
   const playerInstanceRef = useRef(null);
   const isInternalUpdateRef = useRef(false);
@@ -64,6 +86,27 @@ export default function VideoPlayer({
   const [isReady, setIsReady] = useState(false);
   const [playerError, setPlayerError] = useState(null);
   const [autoplayBlocked, setAutoplayBlocked] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  // Sync fullscreen state changes
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(Boolean(document.fullscreenElement));
+    };
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+    };
+  }, []);
+
+  const handleToggleFullscreen = () => {
+    if (!playerOuterRef.current) return;
+    if (!document.fullscreenElement) {
+      playerOuterRef.current.requestFullscreen?.().catch((err) => console.warn(err));
+    } else {
+      document.exitFullscreen?.().catch((err) => console.warn(err));
+    }
+  };
 
   // Initialize or re-create the YouTube player instance
   const initPlayer = useCallback(() => {
@@ -306,34 +349,50 @@ export default function VideoPlayer({
 
   return (
     <div
+      ref={playerOuterRef}
       style={{
         position: "relative",
-        width: "100%",
-        paddingTop: "56.25%", // 16:9 Aspect Ratio
+        width: isFullscreen ? "100vw" : "100%",
+        height: isFullscreen ? "100vh" : "auto",
+        paddingTop: isFullscreen ? 0 : "56.25%", // 16:9 Aspect Ratio
         background: "#000000",
-        borderRadius: "var(--radius-md)",
+        borderRadius: isFullscreen ? 0 : "var(--radius-md)",
         overflow: "hidden",
-        border: "1px solid var(--border-color)",
-        boxShadow: "0 20px 50px rgba(0, 0, 0, 0.6)",
+        border: isFullscreen ? "none" : "1px solid var(--border-color)",
+        boxShadow: isFullscreen ? "none" : "0 20px 50px rgba(0, 0, 0, 0.6)",
       }}
     >
       {/* Floating Emoji Reactions Overlay */}
       <EmojiReactions reactions={reactions} />
 
-      {/* Embedded YouTube IFrame Container */}
+      {/* Embedded YouTube IFrame Container with Zoom Scale */}
       <div
-        ref={containerWrapperRef}
         style={{
           position: "absolute",
           top: 0,
           left: 0,
           width: "100%",
           height: "100%",
-          pointerEvents: "none",
+          overflow: "hidden",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
         }}
-      />
+      >
+        <div
+          ref={containerWrapperRef}
+          style={{
+            width: "100%",
+            height: "100%",
+            transform: `scale(${zoomLevel})`,
+            transformOrigin: "center center",
+            transition: "transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
+            pointerEvents: "none",
+          }}
+        />
+      </div>
 
-      {/* Transparent Clickable Overlay for Host/Mod play-pause toggle */}
+      {/* Transparent Clickable Overlay for Host/Mod Play-Pause and Double-Click Fullscreen */}
       <div
         onClick={() => {
           if (!canControl) return;
@@ -346,6 +405,8 @@ export default function VideoPlayer({
             }
           } catch (e) {}
         }}
+        onDoubleClick={handleToggleFullscreen}
+        title={canControl ? (isPlaying ? "Click to Pause (Double-click for Fullscreen)" : "Click to Play (Double-click for Fullscreen)") : "Double-click for Fullscreen"}
         style={{
           position: "absolute",
           inset: 0,
@@ -353,6 +414,204 @@ export default function VideoPlayer({
           zIndex: 10,
         }}
       />
+
+      {/* Top Floating Glass Toolbar (Zoom, Skip & Fullscreen Controls) */}
+      <div
+        style={{
+          position: "absolute",
+          top: "12px",
+          left: "12px",
+          right: "12px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          pointerEvents: "none",
+          zIndex: 22,
+        }}
+      >
+        {/* Left Badge: Sync / Control Status */}
+        <div
+          style={{
+            background: "rgba(15, 23, 42, 0.82)",
+            backdropFilter: "blur(10px)",
+            padding: "5px 12px",
+            borderRadius: "var(--radius-full)",
+            border: "1px solid rgba(255, 255, 255, 0.12)",
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+            fontSize: "11px",
+            fontWeight: 600,
+            color: canControl ? "#c084fc" : "#94a3b8",
+            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.4)",
+          }}
+        >
+          {canControl ? (
+            <>
+              <Sparkles size={12} color="#c084fc" />
+              <span>Room Control Active</span>
+            </>
+          ) : (
+            <>
+              <Lock size={12} color="#94a3b8" />
+              <span>Synced with Host</span>
+            </>
+          )}
+        </div>
+
+        {/* Right Toolbar: Quick Skip, Zoom Controls & Fullscreen */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+            pointerEvents: "auto",
+          }}
+        >
+          {/* Quick On-Player Skip Buttons for Host/Moderator */}
+          {canControl && (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "4px",
+                background: "rgba(15, 23, 42, 0.82)",
+                backdropFilter: "blur(10px)",
+                padding: "3px 6px",
+                borderRadius: "var(--radius-full)",
+                border: "1px solid rgba(255, 255, 255, 0.12)",
+                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.4)",
+              }}
+            >
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSkipBackward && onSkipBackward(10);
+                }}
+                className="btn-icon"
+                style={{ width: "26px", height: "26px", fontSize: "11px", color: "var(--text-main)" }}
+                title="Skip back 10 seconds"
+              >
+                <RotateCcw size={12} />
+              </button>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSkipForward && onSkipForward(10);
+                }}
+                className="btn-icon"
+                style={{ width: "26px", height: "26px", fontSize: "11px", color: "var(--text-main)" }}
+                title="Skip forward 10 seconds"
+              >
+                <FastForward size={12} />
+              </button>
+            </div>
+          )}
+
+          {/* Zoom Controls Pill */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "4px",
+              background: "rgba(15, 23, 42, 0.82)",
+              backdropFilter: "blur(10px)",
+              padding: "3px 6px",
+              borderRadius: "var(--radius-full)",
+              border: "1px solid rgba(255, 255, 255, 0.12)",
+              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.4)",
+            }}
+          >
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onZoomOut && onZoomOut();
+              }}
+              disabled={zoomLevel <= 1}
+              className="btn-icon"
+              style={{
+                width: "26px",
+                height: "26px",
+                color: zoomLevel <= 1 ? "rgba(255,255,255,0.25)" : "var(--text-main)",
+                cursor: zoomLevel <= 1 ? "not-allowed" : "pointer",
+              }}
+              title="Zoom out"
+            >
+              <ZoomOut size={13} />
+            </button>
+
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onResetZoom && onResetZoom();
+              }}
+              style={{
+                background: "none",
+                border: "none",
+                color: zoomLevel > 1 ? "#c084fc" : "var(--text-muted)",
+                fontSize: "11px",
+                fontWeight: 700,
+                padding: "2px 5px",
+                cursor: "pointer",
+                fontFamily: "monospace",
+              }}
+              title="Click to reset zoom (100%)"
+            >
+              {Math.round(zoomLevel * 100)}%
+            </button>
+
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onZoomIn && onZoomIn();
+              }}
+              disabled={zoomLevel >= 2.5}
+              className="btn-icon"
+              style={{
+                width: "26px",
+                height: "26px",
+                color: zoomLevel >= 2.5 ? "rgba(255,255,255,0.25)" : "var(--text-main)",
+                cursor: zoomLevel >= 2.5 ? "not-allowed" : "pointer",
+              }}
+              title="Zoom in"
+            >
+              <ZoomIn size={13} />
+            </button>
+          </div>
+
+          {/* Fullscreen Toggle Button */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleToggleFullscreen();
+            }}
+            style={{
+              background: "rgba(15, 23, 42, 0.82)",
+              backdropFilter: "blur(10px)",
+              width: "32px",
+              height: "32px",
+              borderRadius: "50%",
+              border: "1px solid rgba(255, 255, 255, 0.12)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "var(--text-main)",
+              cursor: "pointer",
+              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.4)",
+              transition: "all 0.15s ease",
+            }}
+            title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
+          >
+            {isFullscreen ? <Minimize size={14} /> : <Maximize size={14} />}
+          </button>
+        </div>
+      </div>
 
       {/* Autoplay / Click to Unmute & Sync Overlay */}
       {autoplayBlocked && !playerError && (
@@ -462,32 +721,6 @@ export default function VideoPlayer({
           <p style={{ margin: 0, fontSize: "12px", color: "var(--primary-light)" }}>
             💡 Tip: Choose another video from the presets below or paste any YouTube video link.
           </p>
-        </div>
-      )}
-
-      {/* Participant Sync Badge */}
-      {!canControl && !playerError && (
-        <div
-          style={{
-            position: "absolute",
-            top: "12px",
-            right: "12px",
-            background: "rgba(15, 23, 42, 0.8)",
-            backdropFilter: "blur(8px)",
-            padding: "6px 12px",
-            borderRadius: "var(--radius-full)",
-            border: "1px solid rgba(255, 255, 255, 0.1)",
-            display: "flex",
-            alignItems: "center",
-            gap: "6px",
-            fontSize: "11px",
-            color: "var(--text-muted)",
-            pointerEvents: "none",
-            zIndex: 20,
-          }}
-        >
-          <Lock size={12} color="#94a3b8" />
-          <span>Synced with Host</span>
         </div>
       )}
     </div>

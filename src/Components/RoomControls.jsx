@@ -3,6 +3,11 @@ import {
   Play,
   Pause,
   RotateCcw,
+  FastForward,
+  SkipBack,
+  SkipForward,
+  ZoomIn,
+  ZoomOut,
   Film,
   Lock,
   Sparkles,
@@ -15,10 +20,18 @@ import { formatDuration, extractYouTubeId, PRESET_VIDEOS } from "../utils/youtub
 const REACTION_EMOJIS = ["❤️", "🔥", "👏", "😂", "🍿", "🎉"];
 
 export default function RoomControls({
+  videoId,
   isPlaying,
   currentTime,
   duration,
   canControl,
+  zoomLevel = 1,
+  onZoomIn,
+  onZoomOut,
+  onResetZoom,
+  onSkipBackward,
+  onSkipForward,
+  onSkipNextVideo,
   onPlay,
   onPause,
   onSeek,
@@ -228,16 +241,36 @@ export default function RoomControls({
           gap: "12px",
         }}
       >
-        {/* Left: Play/Pause/Restart Controls */}
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+        {/* Left: Play/Pause/Skip Controls */}
+        <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
           {canControl ? (
             <>
+              {/* Skip Back 10s */}
+              <button
+                type="button"
+                onClick={() => onSkipBackward && onSkipBackward(10)}
+                className="btn btn-secondary"
+                style={{
+                  padding: "8px 12px",
+                  borderRadius: "var(--radius-full)",
+                  fontSize: "12px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "4px",
+                }}
+                title="Skip back 10 seconds (-10s)"
+              >
+                <RotateCcw size={14} />
+                <span>-10s</span>
+              </button>
+
+              {/* Play / Pause Toggle */}
               {isPlaying ? (
                 <button
                   onClick={onPause}
                   className="btn btn-secondary"
                   style={{
-                    padding: "8px 16px",
+                    padding: "8px 18px",
                     borderRadius: "var(--radius-full)",
                     background: "rgba(239, 68, 68, 0.15)",
                     borderColor: "rgba(239, 68, 68, 0.3)",
@@ -253,7 +286,7 @@ export default function RoomControls({
                   onClick={onPlay}
                   className="btn btn-primary"
                   style={{
-                    padding: "8px 18px",
+                    padding: "8px 20px",
                     borderRadius: "var(--radius-full)",
                   }}
                   title="Play video for everyone"
@@ -263,12 +296,56 @@ export default function RoomControls({
                 </button>
               )}
 
+              {/* Skip Forward 10s */}
+              <button
+                type="button"
+                onClick={() => onSkipForward && onSkipForward(10)}
+                className="btn btn-secondary"
+                style={{
+                  padding: "8px 12px",
+                  borderRadius: "var(--radius-full)",
+                  fontSize: "12px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "4px",
+                }}
+                title="Skip forward 10 seconds (+10s)"
+              >
+                <FastForward size={14} />
+                <span>+10s</span>
+              </button>
+
+              {/* Skip to Next Video */}
+              {onSkipNextVideo && (
+                <button
+                  type="button"
+                  onClick={onSkipNextVideo}
+                  className="btn btn-secondary"
+                  style={{
+                    padding: "8px 14px",
+                    borderRadius: "var(--radius-full)",
+                    fontSize: "12px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    background: "rgba(139, 92, 246, 0.12)",
+                    borderColor: "rgba(139, 92, 246, 0.3)",
+                    color: "#c084fc",
+                  }}
+                  title="Skip to next playlist track"
+                >
+                  <SkipForward size={14} />
+                  <span>Next Video</span>
+                </button>
+              )}
+
+              {/* Restart */}
               <button
                 onClick={() => onSeek(0)}
                 className="btn-icon"
-                title="Restart from beginning"
+                title="Restart from beginning (0:00)"
               >
-                <RotateCcw size={15} />
+                <RotateCcw size={14} />
               </button>
             </>
           ) : (
@@ -289,6 +366,73 @@ export default function RoomControls({
               <span>Playback controlled by Host / Moderator</span>
             </div>
           )}
+        </div>
+
+        {/* Center: Zoom Controls */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+            background: "rgba(0, 0, 0, 0.35)",
+            padding: "4px 10px",
+            borderRadius: "var(--radius-full)",
+            border: "1px solid var(--border-color)",
+          }}
+        >
+          <span style={{ fontSize: "11px", color: "var(--text-muted)", fontWeight: 600, marginRight: "2px" }}>
+            Zoom:
+          </span>
+          <button
+            type="button"
+            onClick={onZoomOut}
+            disabled={zoomLevel <= 1}
+            className="btn-icon"
+            style={{
+              width: "26px",
+              height: "26px",
+              color: zoomLevel <= 1 ? "rgba(255,255,255,0.2)" : "var(--text-main)",
+              cursor: zoomLevel <= 1 ? "not-allowed" : "pointer",
+            }}
+            title="Zoom out video"
+          >
+            <ZoomOut size={13} />
+          </button>
+
+          <button
+            type="button"
+            onClick={onResetZoom}
+            style={{
+              background: "none",
+              border: "none",
+              color: zoomLevel > 1 ? "#c084fc" : "var(--text-main)",
+              fontSize: "11px",
+              fontWeight: 700,
+              padding: "2px 6px",
+              cursor: "pointer",
+              fontFamily: "monospace",
+              borderRadius: "4px",
+            }}
+            title="Click to reset zoom to 100%"
+          >
+            {Math.round(zoomLevel * 100)}%
+          </button>
+
+          <button
+            type="button"
+            onClick={onZoomIn}
+            disabled={zoomLevel >= 2.5}
+            className="btn-icon"
+            style={{
+              width: "26px",
+              height: "26px",
+              color: zoomLevel >= 2.5 ? "rgba(255,255,255,0.2)" : "var(--text-main)",
+              cursor: zoomLevel >= 2.5 ? "not-allowed" : "pointer",
+            }}
+            title="Zoom in video"
+          >
+            <ZoomIn size={13} />
+          </button>
         </div>
 
         {/* Right: Quick Emoji Reaction Bar */}

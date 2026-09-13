@@ -6,7 +6,7 @@ import ParticipantList from "../Components/ParticipantList";
 import ChatBox from "../Components/ChatBox";
 import socketService, { BACKEND_URL } from "../services/socket";
 import { MessageSquare, Users, AlertCircle, Sparkles, UserX, Home as HomeIcon, Crown } from "lucide-react";
-import { DEFAULT_VIDEO_ID } from "../utils/youtube";
+import { DEFAULT_VIDEO_ID, PRESET_VIDEOS } from "../utils/youtube";
 
 export default function WatchRoom({
   roomId,
@@ -24,6 +24,9 @@ export default function WatchRoom({
   const [duration, setDuration] = useState(0);
   const [participants, setParticipants] = useState([]);
   const [hostId, setHostId] = useState(null);
+
+  // Zoom State
+  const [zoomLevel, setZoomLevel] = useState(1);
 
   // Chat & Reactions
   const [chatMessages, setChatMessages] = useState([]);
@@ -271,6 +274,38 @@ export default function WatchRoom({
     socketService.sendSeek(roomId, time);
   };
 
+  const handleSkipBackwardAction = (seconds = 10) => {
+    const newTime = Math.max(0, currentTime - seconds);
+    handleSeekAction(newTime);
+    showToast(`⏪ Rewound ${seconds}s`);
+  };
+
+  const handleSkipForwardAction = (seconds = 10) => {
+    const newTime = Math.min(duration || Infinity, currentTime + seconds);
+    handleSeekAction(newTime);
+    showToast(`⏩ Skipped +${seconds}s`);
+  };
+
+  const handleSkipNextVideoAction = () => {
+    const currentIndex = PRESET_VIDEOS.findIndex((p) => p.id === videoId);
+    const nextIndex = (currentIndex + 1) % PRESET_VIDEOS.length;
+    const nextVideo = PRESET_VIDEOS[nextIndex];
+    handleChangeVideoAction(nextVideo.id);
+    showToast(`⏭️ Switched to: ${nextVideo.title}`);
+  };
+
+  const handleZoomInAction = () => {
+    setZoomLevel((prev) => Math.min(2.5, +(prev + 0.25).toFixed(2)));
+  };
+
+  const handleZoomOutAction = () => {
+    setZoomLevel((prev) => Math.max(1, +(prev - 0.25).toFixed(2)));
+  };
+
+  const handleResetZoomAction = () => {
+    setZoomLevel(1);
+  };
+
   const handleChangeVideoAction = (newVideoId) => {
     if (!newVideoId) return;
     setVideoId(newVideoId);
@@ -417,6 +452,12 @@ export default function WatchRoom({
               remoteSeekTarget={remoteSeekTarget}
               canControl={canControl}
               reactions={reactions}
+              zoomLevel={zoomLevel}
+              onZoomIn={handleZoomInAction}
+              onZoomOut={handleZoomOutAction}
+              onResetZoom={handleResetZoomAction}
+              onSkipBackward={handleSkipBackwardAction}
+              onSkipForward={handleSkipForwardAction}
               onLocalPlay={handlePlayAction}
               onLocalPause={handlePauseAction}
               onDurationChange={setDuration}
@@ -425,10 +466,18 @@ export default function WatchRoom({
             />
 
             <RoomControls
+              videoId={videoId}
               isPlaying={isPlaying}
               currentTime={currentTime}
               duration={duration}
               canControl={canControl}
+              zoomLevel={zoomLevel}
+              onZoomIn={handleZoomInAction}
+              onZoomOut={handleZoomOutAction}
+              onResetZoom={handleResetZoomAction}
+              onSkipBackward={handleSkipBackwardAction}
+              onSkipForward={handleSkipForwardAction}
+              onSkipNextVideo={handleSkipNextVideoAction}
               onPlay={() => handlePlayAction(currentTime)}
               onPause={() => handlePauseAction(currentTime)}
               onSeek={handleSeekAction}
