@@ -94,11 +94,14 @@ export default function VideoPlayer({
           height: "100%",
           playerVars: {
             autoplay: isPlaying ? 1 : 0,
-            controls: 1,
+            controls: 0,
             rel: 0,
             modestbranding: 1,
             enablejsapi: 1,
             playsinline: 1,
+            iv_load_policy: 3,
+            disablekb: 1,
+            fs: 0,
             origin: window.location.origin,
           },
           events: {
@@ -326,6 +329,28 @@ export default function VideoPlayer({
           left: 0,
           width: "100%",
           height: "100%",
+          pointerEvents: "none",
+        }}
+      />
+
+      {/* Transparent Clickable Overlay for Host/Mod play-pause toggle */}
+      <div
+        onClick={() => {
+          if (!canControl) return;
+          try {
+            const cur = playerInstanceRef.current?.getCurrentTime?.() || 0;
+            if (isPlaying) {
+              onLocalPause && onLocalPause(cur);
+            } else {
+              onLocalPlay && onLocalPlay(cur);
+            }
+          } catch (e) {}
+        }}
+        style={{
+          position: "absolute",
+          inset: 0,
+          cursor: canControl ? "pointer" : "default",
+          zIndex: 10,
         }}
       />
 
